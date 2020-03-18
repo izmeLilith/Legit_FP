@@ -3,6 +3,9 @@ import numpy as np
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import os
+import shutil
+import os.path
 
 class Window3(QMainWindow):                           # <===
     def __init__(self):
@@ -11,7 +14,11 @@ class Window3(QMainWindow):                           # <===
         self.label.setFont(QFont('Times', 20, QFont.Bold ))
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
-        self.label.move(150, 20)
+        self.label.move(150, 20) #gumana na sana to
+
+        self.history = open("Determinant History.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
        
 
         self.setWindowTitle("Determinant Calculator")
@@ -86,6 +93,13 @@ class Window3(QMainWindow):                           # <===
         self.button.move(350,350)
         self.button.clicked.connect(self.back) 
 
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Determinant History")
+        self.button.move(200,400)
+        self.button.clicked.connect(self.DHistory) 
+
         
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
@@ -113,18 +127,21 @@ class Window3(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        self.matrix_computation(a, b, c, d, e, f, g, h, i)
-    
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != "" and self.textbox7.text() != "" and self.textbox8.text() != "" and self.textbox9.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i)
+        elif self.textbox1.text() == "" and self.textbox2.text() == "" and self.textbox3.text() == "" and self.textbox4.text()== "" and self.textbox5.text() == "" and self.textbox6.text() == "" and self.textbox7.text() == "" and self.textbox8.text() == "" and self.textbox9.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+        elif self.textbox1.text() == "" or self.textbox2.text() == "" or self.textbox3.text() == "" or self.textbox4.text() == "" or self.textbox5.text() == "" or self.textbox6.text() == "" or self.textbox7.text() == "" or self.textbox8.text() == "" or self.textbox9.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
     def back(self):
         Window3.close(self)
         self.MainWindow()
@@ -132,7 +149,9 @@ class Window3(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = Window()
         self.mnwndw.show()
-
+    def DHistory(self):
+        self.open = DHistory()
+        self.open.show()
     def matrix_computation(self, a ,b ,c, d, e, f, g, h, i):
         A = (a*e*i)
         B = (b*f*g)
@@ -143,7 +162,93 @@ class Window3(QMainWindow):                           # <===
 
         Determinate = (A + B + C) - (D + E + F)
         self.det.setText(f"{Determinate}")
+        submitting = QMessageBox.information(self, "Processing", "Data being processed. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes )
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != "" and i != "":
+            self.history = open("Determinant History.txt", 'a')
+            self.history.write("Inputs\n" + str(a) + "\n")
+            self.history.write(str(b) + "\n")
+            self.history.write(str(c) + "\n")
+            self.history.write(str(d) + "\n")
+            self.history.write(str(e) + "\n")
+            self.history.write(str(f) + "\n")
+            self.history.write(str(g) + "\n")
+            self.history.write(str(h) + "\n")
+            self.history.write(str(i) + "\n")
+            self.history.write("Determinate is \n" + str(Determinate))
+            self.history.close()
+            QMessageBox.information(self, "Processed", "Data has been processed", QMessageBox.Ok, QMessageBox.Ok)
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == "" and i == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == "" or i == "":
+            QMessageBox.warning(self, "Blank Field", "Please don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
 
+class DHistory(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.label = QLabel("<h3> 3 x 3 History <h3>", self)
+        self.label.setFont(QFont('Times', 20, QFont.Bold ))
+        self.label.setStyleSheet('QLabel {color: #dedede;}')
+        self.label.resize(500,50)
+        self.label.move(150, 20)
+
+        self.setWindowTitle("Determinant History")
+        self.setGeometry(420, 100, 500, 500)
+
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("Determinant History.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Does not exist", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+        
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(450, 350)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(50, 370)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(150, 370)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(350, 370)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:
+            QMessageBox.warning(self, "No File", "File does not exist!", QMessageBox.Ok, QMessageBox.Ok)
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.historia = open("Determinant History.txt",'r')
+            text = self.historia.read()
+            self.textans.setText(text)
+            self.historia.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class Window4(QMainWindow):
     def __init__(self):
@@ -153,7 +258,10 @@ class Window4(QMainWindow):
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
         self.label.move(200, 20)
-       
+
+        self.history = open("History4D.txt", 'w')
+        self.history.write(" 4 x 4 History")
+        self.history.close()
 
         self.setWindowTitle("Determinant Calculator")
         self.setGeometry(380, 100, 600, 500)
@@ -253,9 +361,17 @@ class Window4(QMainWindow):
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
         self.button.setToolTip("Go Back")
         self.button.move(450,350)
-        self.button.clicked.connect(self.back) 
-
+        self.button.clicked.connect(self.back)
         
+        self.button = QPushButton('History', self)
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(250,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historyy)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(680,500))                   # resize Image to widgets size
@@ -287,27 +403,30 @@ class Window4(QMainWindow):
         self.textbox16.setText("")
         self.det.setText("")
         
-
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox10.text())
-        k = int(self.textbox11.text())
-        l = int(self.textbox12.text())
-        m = int(self.textbox13.text())
-        n = int(self.textbox14.text())
-        o = int(self.textbox15.text())
-        p = int(self.textbox16.text())
-        paintEngine = int(self.textbox16.text())
-        self.matrix_computation(a, b, c, d, e, f, g, h, i,j,k,l,m,n,o,p)
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != "" and self.textbox7.text() != "" and self.textbox8.text() != "" and self.textbox9.text() != "" and self.textbox10.text() != "" and self.textbox11.text() != "" and self.textbox12.text() != "" and self.textbox13.text() != "" and self.textbox14.text() != "" and self.textbox15.text() != "" and self.textbox16.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox10.text())
+            k = int(self.textbox11.text())
+            l = int(self.textbox12.text())
+            m = int(self.textbox13.text())
+            n = int(self.textbox14.text())
+            o = int(self.textbox15.text())
+            p = int(self.textbox16.text())
+            paintEngine = int(self.textbox16.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i,j,k,l,m,n,o,p)
+        elif self.textbox1.text() == "" and self.textbox2.text() == "" and self.textbox3.text() == "" and self.textbox4.text() == "" and self.textbox5.text() == "" and self.textbox6.text() == "" and self.textbox7.text() == "" and self.textbox8.text() == "" and self.textbox9.text() == "" and self.textbox10.text() == "" and self.textbox11.text() == "" and self.textbox12.text() == "" and self.textbox13.text() == "" and self.textbox14.text() == "" and self.textbox15.text() == "" and self.textbox16.text() == "":
+            QMessageBox.warning(self, "Invalid", "Please input a number", QMessageBox.Ok, QMessageBox.Ok)
+        elif self.textbox1.text() == "" or self.textbox2.text() == "" or self.textbox3.text() == "" or self.textbox4.text() == "" or self.textbox5.text() == "" or self.textbox6.text() == "" or self.textbox7.text() == "" or self.textbox8.text() == "" or self.textbox9.text() == "" or self.textbox10.text() == "" or self.textbox11.text() == "" or self.textbox12.text() == "" or self.textbox13.text() == "" or self.textbox14.text() == "" or self.textbox15.text() == "" or self.textbox16.text() == "":
+            QMessageBox.warning(self, "Invalid", "Please input a number", QMessageBox.Ok, QMessageBox.Ok)
     
     def back(self):
         Window4.close(self)
@@ -316,10 +435,10 @@ class Window4(QMainWindow):
     def MainWindow(self):
         self.mnwndw = Window()
         self.mnwndw.show()
-
     
-    
-        
+    def historyy(self):
+        self.w = History_Win4()
+        self.w.show()
 
     def matrix_computation(self, a, b, c, d, e, f, g, h, i,j,k,l,m,n,o,p):
         A = a*((f*(k*p-l*o)) - (g*(j*p-l*n)) + (h*(j*o-k*n)))
@@ -329,6 +448,105 @@ class Window4(QMainWindow):
 
         Determinate = A-B+C-D
         self.det.setText(f"{Determinate}")
+        submitting = QMessageBox.information(self, "Response", "Your Response is being submitted. Do you want to proceed?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != "" and i != "" and j != "" and k != "" and l != "" and m != "" and n != "" and o != "" and p != "":
+            self.historia = open("History4D.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write(str(i)+"\n")
+            self.historia.write(str(j)+"\n")
+            self.historia.write(str(k)+"\n")
+            self.historia.write(str(l)+"\n")
+            self.historia.write(str(m)+"\n")
+            self.historia.write(str(n)+"\n")
+            self.historia.write(str(o)+"\n")
+            self.historia.write(str(p)+"\n")
+            self.historia.write("Determinate" + "is" + str(Determinate)+"\n")
+            self.historia.close()
+
+            QMessageBox.information(self, "Data processed", "Data has been processed, Thank You!", QMessageBox.Ok, QMessageBox.Ok)
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == "" and i == "" and j == "" and k == "" and l == "" and m == "" and n == "" and o == "" and p == "":
+            pass
+        elif submitting == QMessageBox.No and a != "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == "" or i == "" or j == "" or k == "" or l == "" or m == "" or n == "" or o == "" or p == "":
+            QMessageBox.warning(self, "Blank field", "Do not leave any field unanswered!", QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Error input", "Number only please!", QMessageBox.Ok, QMessageBox.Ok)
+
+class History_Win4(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "Matrix Calculator"
+        self.top = 100
+        self.left = 100
+        self.width = 680
+        self.height = 500
+
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.historia = open("History4D.txt", 'r')
+            self.historia.read()
+            self.historia.close()
+        else:
+            QMessageBox.warning(self, "Does not exist", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setGeometry(self.top, self.left, self.width, self.height)
+
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(630, 450)
+
+        self.pushButton = QPushButton("clear", self)
+        self.pushButton.move(50, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(250, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(450, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+        
+    def show_his(self, matrix_computation):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.historia = open("History4D.txt",'r')
+            text = self.historia.read()
+            self.textans.setText(text)
+            self.historia.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 
 class Window2(QMainWindow):                           # <===
@@ -339,8 +557,11 @@ class Window2(QMainWindow):                           # <===
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
         self.label.move(155, 25)
-       
 
+        self.history = open("History2d.txt", 'w')
+        self.history.write("2x2 History\n")
+        self.history.close()
+       
         self.setWindowTitle("Determinant Calculator")
         self.setGeometry(500, 100, 500, 500)
     
@@ -348,11 +569,9 @@ class Window2(QMainWindow):                           # <===
         self.textbox1.move(150,80)
         self.textbox1.resize(100,30)
         
-
         self.textbox3 = QLineEdit(self)
         self.textbox3.move(150, 110)
         self.textbox3.resize(100,30)
-        
 
         self.textbox2 = QLineEdit(self)
         self.textbox2.move(250, 80)
@@ -393,6 +612,16 @@ class Window2(QMainWindow):                           # <===
         self.button.move(350,350)
         self.button.clicked.connect(self.back) 
 
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt;font-weight : bold }")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(200,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historys)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
+
         
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(680,500))                   # resize Image to widgets size
@@ -417,12 +646,10 @@ class Window2(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = Window()
         self.mnwndw.show()
+    def historys(self):
+        self.open = His_Win2()
+        self.open.show()
 
-        
-
-
-     
-    
     def clear(self):
         buttonReply = QMessageBox.information(self, "Input Cleared", "Your Input Has Been Cleared", QMessageBox.Ok, QMessageBox.Ok)
         self.textbox1.setText("")
@@ -430,25 +657,92 @@ class Window2(QMainWindow):                           # <===
         self.textbox3.setText("")
         self.textbox4.setText("")
         self.det.setText("")
-    
-    
-        
+      
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        self.matrix_computation(a, b, c, d)
-    
-    
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            self.matrix_computation(a, b, c, d)
+        elif self.textbox1.text() == "" and self.textbox2.text() == "" and self.textbox3.text() == "" and self.textbox4.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blanks", QMessageBox.Ok, QMessageBox.Ok)
+        elif self.textbox1.text() == "" or self.textbox2.text() == "" or self.textbox3.text() == "" or self.textbox4.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blanks", QMessageBox.Ok, QMessageBox.Ok)
     
 
     def matrix_computation(self, a ,b ,c, d):
 
         Determinate = (a*d)-(b*c)
         self.det.setText(f"{Determinate}")
+        submitting = QMessageBox.information(self, "Response", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "":
+            self.historia = open("History2d.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write("Determinate is " + str(Determinate))
+            self.historia.close()
+class His_Win2(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "2x2 History"
+        self.setGeometry(500, 100, 500, 500)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.historia = open("History2d.txt", 'r')
+            self.historia.read()
+            self.historia.close()
+        else:
+            QMessageBox.warning(self, "Does not exist", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(450, 350)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(50, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.historia = open("History2d.txt",'r')
+            text = self.historia.read()
+            self.textans.setText(text)
+            self.historia.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class Window(QMainWindow):
     def __init__(self):
@@ -482,16 +776,8 @@ class Window(QMainWindow):
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt;font-weight : bold }")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
         self.button.setToolTip("Go Back")
-        self.button.move(100,450)
+        self.button.move(300,450)
         self.button.clicked.connect(self.back)
-        
-
-        self.pushButton = QPushButton("History", self)
-        self.pushButton.move(500, 450)
-        self.pushButton.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold }")
-        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt }")
-        self.pushButton.setToolTip("View")
-        self.pushButton.clicked.connect(self.history)
 
         self.main_window()
 
@@ -522,8 +808,6 @@ class Window(QMainWindow):
         self.mnwndw = MainWindow()
         self.mnwndw.show()
     
-
-
     def window2(self):
         self.w = Window2()
         self.w.show()
@@ -538,8 +822,6 @@ class Window(QMainWindow):
         self.w = Window4()
         self.w.show()
         MainWindow.close(self)
-    def history(self):
-        pass
 
 class WindowAdd2x2(QMainWindow):                           # <===
     def __init__(self):
@@ -549,8 +831,11 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
         self.label.move(430, 10)
-       
 
+        self.history = open("HistoryAdd2.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
+       
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1000, 500)
     
@@ -563,8 +848,6 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.textbox2.move(180, 80)
         self.textbox2.resize(100,30)
 
-        
-
         self.textbox3 = QLineEdit(self)
         self.textbox3.move(80, 110)
         self.textbox3.resize(100,30)
@@ -573,9 +856,6 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.textbox4.move(180, 110)
         self.textbox4.resize(100,30)
 
-       
-
-       
         self.textbox1a = QLineEdit(self)
         self.textbox1a.move(480, 80)
         self.textbox1a.resize(100,30)
@@ -630,12 +910,6 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.text.setStyleSheet('QLabel {color:#dedede;}')
         self.text.move(480, 60)
         self.text.resize(150, 30)
-
-
-
-
-
-      
         
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
@@ -657,6 +931,16 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.button.setToolTip("Go Back")
         self.button.move(850,350)
         self.button.clicked.connect(self.back) 
+
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(450,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         
 
@@ -685,22 +969,21 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.det3.setText("")
         self.det4.setText("")
         
-
-        
-
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox1a.text())
-        f = int(self.textbox2a.text())
-        g = int(self.textbox3a.text())
-        h = int(self.textbox4a.text())
-   
-
-        self.matrix_computation(a, b, c, d, e, f, g, h)
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox1a.text() != "" and self.textbox2a.text() != "" and self.textbox3a.text() != "" and self.textbox4a.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox1a.text())
+            f = int(self.textbox2a.text())
+            g = int(self.textbox3a.text())
+            h = int(self.textbox4a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h)
+        elif self.textbox1.text() == "" and self.textbox2.text() == "" and self.textbox3.text() == "" and self.textbox4.text() == "" and self.textbox1a.text() == "" and self.textbox2a.text() == "" and self.textbox3a.text() == "" and self.textbox4a.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+        elif self.textbox1.text() == "" or self.textbox2.text() == "" or self.textbox3.text() == "" or self.textbox4.text() == "" or self.textbox1a.text() == "" or self.textbox2a.text() == "" or self.textbox3a.text() == "" or self.textbox4a.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
     
     def back(self):
         WindowAdd2x2.close(self)
@@ -709,6 +992,10 @@ class WindowAdd2x2(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = WindowADD()
         self.mnwndw.show()
+
+    def historycc(self):
+        self.open = HisA2()
+        self.open.show()
 
     def matrix_computation(self,a, b, c, d, e, f, g, h):
         A = (a+e)
@@ -728,8 +1015,89 @@ class WindowAdd2x2(QMainWindow):                           # <===
         self.det2.setText(f"{Determinate2}")
         self.det3.setText(f"{Determinate3}")
         self.det4.setText(f"{Determinate4}")
-        
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != "":
+            self.historia = open("HistoryAdd2.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(2,1) is " + str(Determinate3)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate4)+"\n")
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
 
+class HisA2(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "2x2 Addition History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistoryAdd2.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistoryAdd2.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class WindowAdd3x3(QMainWindow):                           # <===
     def __init__(self):
@@ -739,7 +1107,10 @@ class WindowAdd3x3(QMainWindow):                           # <===
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
         self.label.move(430, 10)
-       
+
+        self.history = open("HistoryAdd3.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1050, 500)
@@ -881,12 +1252,6 @@ class WindowAdd3x3(QMainWindow):                           # <===
         self.text.move(480, 60)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -908,7 +1273,15 @@ class WindowAdd3x3(QMainWindow):                           # <===
         self.button.move(850,350)
         self.button.clicked.connect(self.back) 
 
-        
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(450,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(800,500))                   # resize Image to widgets size
@@ -953,28 +1326,28 @@ class WindowAdd3x3(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox1a.text())
-        k = int(self.textbox2a.text())
-        l = int(self.textbox3a.text())
-        m = int(self.textbox4a.text())
-        n = int(self.textbox5a.text())
-        o = int(self.textbox6a.text())
-        p = int(self.textbox7a.text())
-        q = int(self.textbox8a.text())
-        r = int(self.textbox9a.text())
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != "" and self.textbox7.text() != "" and self.textbox8.text() != ""and self.textbox9.text() != ""and self.textbox1a.text() != ""and self.textbox2a.text() != ""and self.textbox3a.text() != ""and self.textbox4a.text() != ""and self.textbox5a.text() != ""and self.textbox6a.text() != ""and self.textbox7a.text() != ""and self.textbox8a.text() != ""and self.textbox9a.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox1a.text())
+            k = int(self.textbox2a.text())
+            l = int(self.textbox3a.text())
+            m = int(self.textbox4a.text())
+            n = int(self.textbox5a.text())
+            o = int(self.textbox6a.text())
+            p = int(self.textbox7a.text())
+            q = int(self.textbox8a.text())
+            r = int(self.textbox9a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,)
+       
 
-        self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,)
-    
     def back(self):
         WindowAdd3x3.close(self)
         self.MainWindow()
@@ -982,6 +1355,10 @@ class WindowAdd3x3(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = WindowADD()
         self.mnwndw.show()
+
+    def historycc(self):
+        self.open = HisA3()
+        self.open.show()
 
     def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,):
         A = (a+j)
@@ -1015,7 +1392,106 @@ class WindowAdd3x3(QMainWindow):                           # <===
         self.det7.setText(f"{Determinate7}")
         self.det8.setText(f"{Determinate8}")
         self.det9.setText(f"{Determinate9}")
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != ""and i != ""and j != ""and k != ""and l != ""and m != ""and n != ""and o != ""and p != ""and q != ""and r != "":
 
+            self.historia = open("HistoryAdd3.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write(str(i)+"\n")
+            self.historia.write(str(j)+"\n")
+            self.historia.write(str(k)+"\n")
+            self.historia.write(str(l)+"\n")
+            self.historia.write(str(m)+"\n")
+            self.historia.write(str(n)+"\n")
+            self.historia.write(str(o)+"\n")
+            self.historia.write(str(p)+"\n")
+            self.historia.write(str(q)+"\n")
+            self.historia.write(str(r)+"\n")
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(1,3) is " + str(Determinate3)+"\n")
+            self.historia.write("(2,1) is " + str(Determinate4)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate5)+"\n")
+            self.historia.write("(2,3) is " + str(Determinate6)+"\n")
+            self.historia.write("(3,1) is " + str(Determinate7)+"\n")
+            self.historia.write("(3,2) is " + str(Determinate8)+"\n")
+            self.historia.write("(3,3) is " + str(Determinate9)+"\n")
+            
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == ""and i == ""and j == ""and k ==""and l == ""and m == ""and n == ""and o == ""and p == ""and q == ""and r == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == ""or i == ""or j == ""or k == ""or l == ""or m == ""or n == ""or o == ""or p == ""or q == ""or r == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+
+class HisA3(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "3x3 Addition History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistoryAdd3.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistoryAdd3.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class WindowAdd4x4(QMainWindow):                           # <===
     def __init__(self):
@@ -1025,7 +1501,10 @@ class WindowAdd4x4(QMainWindow):                           # <===
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
         self.label.move(430, 10)
-       
+
+        self.history = open("HistoryAdd4.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1000, 500)
@@ -1258,12 +1737,6 @@ class WindowAdd4x4(QMainWindow):                           # <===
         self.text.move(580, 55)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -1285,7 +1758,15 @@ class WindowAdd4x4(QMainWindow):                           # <===
         self.button.move(350,360)
         self.button.clicked.connect(self.back) 
 
-        
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(200,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(800,500))                   # resize Image to widgets size
@@ -1353,44 +1834,44 @@ class WindowAdd4x4(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox10.text())
-        k = int(self.textbox11.text())
-        l = int(self.textbox12.text())
-        m = int(self.textbox13.text())
-        n = int(self.textbox14.text())
-        o = int(self.textbox15.text())
-        p = int(self.textbox16.text())
+        if self.textbox1.text() != "" and self.textbox2.text() !=  "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != ""and self.textbox7.text() != "" and self.textbox8.text() != ""and  self.textbox9.text() != "" and self.textbox10.text() != "" and self.textbox11.text() != "" and self.textbox12.text() != "" and self.textbox13.text() != "" and self.textbox14.text() != "" and self.textbox15.text() != "" and self.textbox16.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox10.text())
+            k = int(self.textbox11.text())
+            l = int(self.textbox12.text())
+            m = int(self.textbox13.text())
+            n = int(self.textbox14.text())
+            o = int(self.textbox15.text())
+            p = int(self.textbox16.text())
+            
+
+            aa = int(self.textbox1a.text())
+            bb = int(self.textbox2a.text())
+            cc = int(self.textbox3a.text())
+            dd = int(self.textbox4a.text())
+            ee = int(self.textbox5a.text())
+            ff = int(self.textbox6a.text())
+            gg = int(self.textbox7a.text())
+            hh = int(self.textbox8a.text())
+            ii = int(self.textbox9a.text())
+            jj = int(self.textbox10a.text())
+            kk = int(self.textbox11a.text())
+            ll = int(self.textbox12a.text())
+            mm = int(self.textbox13a.text())
+            nn = int(self.textbox14a.text())
+            oo = int(self.textbox15a.text())
+            pp = int(self.textbox16a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp)
         
 
-        aa = int(self.textbox1.text())
-        bb = int(self.textbox2.text())
-        cc = int(self.textbox3.text())
-        dd = int(self.textbox4.text())
-        ee = int(self.textbox5.text())
-        ff = int(self.textbox6.text())
-        gg = int(self.textbox7.text())
-        hh = int(self.textbox8.text())
-        ii = int(self.textbox9.text())
-        jj = int(self.textbox10.text())
-        kk = int(self.textbox11.text())
-        ll = int(self.textbox12.text())
-        mm = int(self.textbox13.text())
-        nn = int(self.textbox14.text())
-        oo = int(self.textbox15.text())
-        pp = int(self.textbox16.text())
-
-        self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp)
-    
     def back(self):
         WindowAdd4x4.close(self)
         self.MainWindow()
@@ -1399,7 +1880,11 @@ class WindowAdd4x4(QMainWindow):                           # <===
         self.mnwndw = WindowADD()
         self.mnwndw.show()
 
-    def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp):
+    def historycc(self):
+        self.open = HisA4()
+        self.open.show()
+
+    def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp):
         A = (a+aa)
         B = (b+bb)
         C = (c+cc)
@@ -1451,6 +1936,118 @@ class WindowAdd4x4(QMainWindow):                           # <===
         self.det14.setText(f"{Determinate14}")
         self.det15.setText(f"{Determinate15}")
         self.det16.setText(f"{Determinate16}")
+        self.historia = open("HistoryAdd4.txt", 'a')
+        self.historia.write("Inputs\n" + str(a)+"\n")
+        self.historia.write(str(b)+"\n")
+        self.historia.write(str(c)+"\n")
+        self.historia.write(str(d)+"\n")
+        self.historia.write(str(e)+"\n")
+        self.historia.write(str(f)+"\n")
+        self.historia.write(str(g)+"\n")
+        self.historia.write(str(h)+"\n")
+        self.historia.write(str(i)+"\n")
+        self.historia.write(str(j)+"\n")
+        self.historia.write(str(k)+"\n")
+        self.historia.write(str(l)+"\n")
+        self.historia.write(str(m)+"\n")
+        self.historia.write(str(n)+"\n")
+        self.historia.write(str(o)+"\n")
+        self.historia.write(str(p)+"\n")
+            
+        self.historia.write(str(aa)+"\n")
+        self.historia.write(str(bb)+"\n")
+        self.historia.write(str(cc)+"\n")
+        self.historia.write(str(dd)+"\n")
+        self.historia.write(str(ee)+"\n")
+        self.historia.write(str(ff)+"\n")
+        self.historia.write(str(gg)+"\n")
+        self.historia.write(str(hh)+"\n")
+        self.historia.write(str(ii)+"\n")
+        self.historia.write(str(jj)+"\n")
+        self.historia.write(str(kk)+"\n")
+        self.historia.write(str(ll)+"\n")
+        self.historia.write(str(mm)+"\n")
+        self.historia.write(str(nn)+"\n")
+        self.historia.write(str(oo)+"\n")
+        self.historia.write(str(pp)+"\n")
+        self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+        self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+        self.historia.write("(1,3) is " + str(Determinate3)+"\n")
+        self.historia.write("(1,4) is " + str(Determinate4)+"\n")
+        self.historia.write("(2,1) is " + str(Determinate5)+"\n")
+        self.historia.write("(2,2) is " + str(Determinate6)+"\n")
+        self.historia.write("(2,3) is " + str(Determinate7)+"\n")
+        self.historia.write("(2,4) is " + str(Determinate8)+"\n")
+        self.historia.write("(3,1) is " + str(Determinate9)+"\n")
+        self.historia.write("(3,2) is " + str(Determinate10)+"\n")
+        self.historia.write("(3,3) is " + str(Determinate11) + "\n")
+        self.historia.write("(3,4) is " + str(Determinate12)+"\n")
+        self.historia.write("(4,1) is " + str(Determinate13)+"\n")
+        self.historia.write("(4,2) is " + str(Determinate14)+"\n")
+        self.historia.write("(4,3) is " + str(Determinate15)+"\n")
+        self.historia.write("(4,4) is " + str(Determinate16)+"\n")
+        self.historia.close()     
+   
+class HisA4(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "4x4 Addition History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistoryAdd4.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistoryAdd4.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 
 class WindowADD(QMainWindow):
@@ -1485,16 +2082,8 @@ class WindowADD(QMainWindow):
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt;font-weight : bold }")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
         self.button.setToolTip("Go Back")
-        self.button.move(100,450)
+        self.button.move(300,450)
         self.button.clicked.connect(self.back)
-        
-
-        self.pushButton = QPushButton("History", self)
-        self.pushButton.move(500, 450)
-        self.pushButton.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold }")
-        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt }")
-        self.pushButton.setToolTip("View")
-        self.pushButton.clicked.connect(self.history)
 
         self.main_window()
 
@@ -1541,11 +2130,6 @@ class WindowADD(QMainWindow):
         self.w = WindowAdd4x4()
         self.w.show()
         MainWindow.close(self)
-    
-    
-   
-    def history(self):
-        pass
 
 class WindowSub2x2(QMainWindow):                           # <===
     def __init__(self):
@@ -1556,6 +2140,9 @@ class WindowSub2x2(QMainWindow):                           # <===
         self.label.resize(500,50)
         self.label.move(430, 10)
        
+        self.history = open("HistorySub2.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1000, 500)
@@ -1637,12 +2224,6 @@ class WindowSub2x2(QMainWindow):                           # <===
         self.text.move(480, 60)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -1663,6 +2244,16 @@ class WindowSub2x2(QMainWindow):                           # <===
         self.button.setToolTip("Go Back")
         self.button.move(850,350)
         self.button.clicked.connect(self.back) 
+
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(450,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         
 
@@ -1695,18 +2286,20 @@ class WindowSub2x2(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox1a.text())
-        f = int(self.textbox2a.text())
-        g = int(self.textbox3a.text())
-        h = int(self.textbox4a.text())
-   
-
-        self.matrix_computation(a, b, c, d, e, f, g, h)
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox1a.text() != "" and self.textbox2a.text() != "" and self.textbox3a.text() != "" and self.textbox4a.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox1a.text())
+            f = int(self.textbox2a.text())
+            g = int(self.textbox3a.text())
+            h = int(self.textbox4a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h)
+        elif self.textbox1.text() == "" and self.textbox2.text() == "" and self.textbox3.text() == "" and self.textbox4.text() == "" and self.textbox1a.text() == "" and self.textbox2a.text() == "" and self.textbox3a.text() == "" and self.textbox4a.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+        elif self.textbox1.text() == "" or self.textbox2.text() == "" or self.textbox3.text() == "" or self.textbox4.text() == "" or self.textbox1a.text() == "" or self.textbox2a.text() == "" or self.textbox3a.text() == "" or self.textbox4a.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
     
     def back(self):
         WindowSub2x2.close(self)
@@ -1715,6 +2308,10 @@ class WindowSub2x2(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = WindowSUB()
         self.mnwndw.show()
+    
+    def historycc(self):
+        self.open = HisS2()
+        self.open.show()
 
     def matrix_computation(self,a, b, c, d, e, f, g, h):
         A = (a-e)
@@ -1734,7 +2331,90 @@ class WindowSub2x2(QMainWindow):                           # <===
         self.det2.setText(f"{Determinate2}")
         self.det3.setText(f"{Determinate3}")
         self.det4.setText(f"{Determinate4}")
-        
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != "":
+            self.historia = open("HistorySub2.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(2,1) is " + str(Determinate3)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate4)+"\n")
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+
+class HisS2(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "2x2 Substraction History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistorySub2.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistorySub2.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
+
 
 
 class WindowSub3x3(QMainWindow):                           # <===
@@ -1746,6 +2426,9 @@ class WindowSub3x3(QMainWindow):                           # <===
         self.label.resize(430,50)
         self.label.move(430, 10)
        
+        self.history = open("HistorySub3.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1050, 500)
@@ -1887,12 +2570,6 @@ class WindowSub3x3(QMainWindow):                           # <===
         self.text.move(480, 60)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -1914,7 +2591,15 @@ class WindowSub3x3(QMainWindow):                           # <===
         self.button.move(850,350)
         self.button.clicked.connect(self.back) 
 
-        
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(450,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(800,500))                   # resize Image to widgets size
@@ -1959,27 +2644,26 @@ class WindowSub3x3(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox1a.text())
-        k = int(self.textbox2a.text())
-        l = int(self.textbox3a.text())
-        m = int(self.textbox4a.text())
-        n = int(self.textbox5a.text())
-        o = int(self.textbox6a.text())
-        p = int(self.textbox7a.text())
-        q = int(self.textbox8a.text())
-        r = int(self.textbox9a.text())
-
-        self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,)
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != "" and self.textbox7.text() != "" and self.textbox8.text() != ""and self.textbox9.text() != ""and self.textbox1a.text() != ""and self.textbox2a.text() != ""and self.textbox3a.text() != ""and self.textbox4a.text() != ""and self.textbox5a.text() != ""and self.textbox6a.text() != ""and self.textbox7a.text() != ""and self.textbox8a.text() != ""and self.textbox9a.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox1a.text())
+            k = int(self.textbox2a.text())
+            l = int(self.textbox3a.text())
+            m = int(self.textbox4a.text())
+            n = int(self.textbox5a.text())
+            o = int(self.textbox6a.text())
+            p = int(self.textbox7a.text())
+            q = int(self.textbox8a.text())
+            r = int(self.textbox9a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,)
     
     def back(self):
         WindowSub3x3.close(self)
@@ -1988,6 +2672,10 @@ class WindowSub3x3(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = WindowSUB()
         self.mnwndw.show()
+    
+    def historycc(self):
+        self.open = HisS3()
+        self.open.show()
 
     def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,):
         A = (a-j)
@@ -2021,6 +2709,106 @@ class WindowSub3x3(QMainWindow):                           # <===
         self.det7.setText(f"{Determinate7}")
         self.det8.setText(f"{Determinate8}")
         self.det9.setText(f"{Determinate9}")
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != ""and i != ""and j != ""and k != ""and l != ""and m != ""and n != ""and o != ""and p != ""and q != ""and r != "":
+
+            self.historia = open("HistorySub3.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write(str(i)+"\n")
+            self.historia.write(str(j)+"\n")
+            self.historia.write(str(k)+"\n")
+            self.historia.write(str(l)+"\n")
+            self.historia.write(str(m)+"\n")
+            self.historia.write(str(n)+"\n")
+            self.historia.write(str(o)+"\n")
+            self.historia.write(str(p)+"\n")
+            self.historia.write(str(q)+"\n")
+            self.historia.write(str(r)+"\n")
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(1,3) is " + str(Determinate3)+"\n")
+            self.historia.write("(2,1) is " + str(Determinate4)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate5)+"\n")
+            self.historia.write("(2,3) is " + str(Determinate6)+"\n")
+            self.historia.write("(3,1) is " + str(Determinate7)+"\n")
+            self.historia.write("(3,2) is " + str(Determinate8)+"\n")
+            self.historia.write("(3,3) is " + str(Determinate9)+"\n")
+            
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == ""and i == ""and j == ""and k ==""and l == ""and m == ""and n == ""and o == ""and p == ""and q == ""and r == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == ""or i == ""or j == ""or k == ""or l == ""or m == ""or n == ""or o == ""or p == ""or q == ""or r == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+
+class HisS3(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "3x3 Substraction History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistorySub3.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistorySub3.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 
 class WindowSub4x4(QMainWindow):                           # <===
@@ -2032,6 +2820,9 @@ class WindowSub4x4(QMainWindow):                           # <===
         self.label.resize(500,50)
         self.label.move(430, 10)
        
+        self.history = open("HistorySub4.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1000, 500)
@@ -2264,12 +3055,6 @@ class WindowSub4x4(QMainWindow):                           # <===
         self.text.move(580, 55)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -2290,8 +3075,16 @@ class WindowSub4x4(QMainWindow):                           # <===
         self.button.setToolTip("Go Back")
         self.button.move(350,360)
         self.button.clicked.connect(self.back) 
-
         
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(200,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(800,500))                   # resize Image to widgets size
@@ -2359,43 +3152,42 @@ class WindowSub4x4(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox10.text())
-        k = int(self.textbox11.text())
-        l = int(self.textbox12.text())
-        m = int(self.textbox13.text())
-        n = int(self.textbox14.text())
-        o = int(self.textbox15.text())
-        p = int(self.textbox16.text())
-        
+        if self.textbox1.text() != "" and self.textbox2.text() !=  "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != ""and self.textbox7.text() != "" and self.textbox8.text() != ""and  self.textbox9.text() != "" and self.textbox10.text() != "" and self.textbox11.text() != "" and self.textbox12.text() != "" and self.textbox13.text() != "" and self.textbox14.text() != "" and self.textbox15.text() != "" and self.textbox16.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox10.text())
+            k = int(self.textbox11.text())
+            l = int(self.textbox12.text())
+            m = int(self.textbox13.text())
+            n = int(self.textbox14.text())
+            o = int(self.textbox15.text())
+            p = int(self.textbox16.text())
+            
 
-        aa = int(self.textbox1.text())
-        bb = int(self.textbox2.text())
-        cc = int(self.textbox3.text())
-        dd = int(self.textbox4.text())
-        ee = int(self.textbox5.text())
-        ff = int(self.textbox6.text())
-        gg = int(self.textbox7.text())
-        hh = int(self.textbox8.text())
-        ii = int(self.textbox9.text())
-        jj = int(self.textbox10.text())
-        kk = int(self.textbox11.text())
-        ll = int(self.textbox12.text())
-        mm = int(self.textbox13.text())
-        nn = int(self.textbox14.text())
-        oo = int(self.textbox15.text())
-        pp = int(self.textbox16.text())
-
-        self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp)
+            aa = int(self.textbox1a.text())
+            bb = int(self.textbox2a.text())
+            cc = int(self.textbox3a.text())
+            dd = int(self.textbox4a.text())
+            ee = int(self.textbox5a.text())
+            ff = int(self.textbox6a.text())
+            gg = int(self.textbox7a.text())
+            hh = int(self.textbox8a.text())
+            ii = int(self.textbox9a.text())
+            jj = int(self.textbox10a.text())
+            kk = int(self.textbox11a.text())
+            ll = int(self.textbox12a.text())
+            mm = int(self.textbox13a.text())
+            nn = int(self.textbox14a.text())
+            oo = int(self.textbox15a.text())
+            pp = int(self.textbox16a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp)
     
     def back(self):
         WindowSub4x4.close(self)
@@ -2404,8 +3196,12 @@ class WindowSub4x4(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = WindowSUB()
         self.mnwndw.show()
+    
+    def historycc(self):
+        self.open = HisS4()
+        self.open.show()
 
-    def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp):
+    def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp):
         A = (a-aa)
         B = (b-bb)
         C = (c-cc)
@@ -2457,6 +3253,128 @@ class WindowSub4x4(QMainWindow):                           # <===
         self.det14.setText(f"{Determinate14}")
         self.det15.setText(f"{Determinate15}")
         self.det16.setText(f"{Determinate16}")
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != ""and i != ""and j != ""and k != ""and l != ""and m != ""and n != ""and o != ""and p != ""and aa != ""and bb != "" and cc != "" and dd != "" and ee != ""and  ff != "" and gg != ""and hh != ""and ii != ""and jj != ""and kk != ""and ll != ""and mm != ""and nn != "" and oo != "" and pp != "":
+
+            self.historia = open("HistorySub4.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write(str(i)+"\n")
+            self.historia.write(str(j)+"\n")
+            self.historia.write(str(k)+"\n")
+            self.historia.write(str(l)+"\n")
+            self.historia.write(str(m)+"\n")
+            self.historia.write(str(n)+"\n")
+            self.historia.write(str(o)+"\n")
+            self.historia.write(str(p)+"\n")
+        
+            self.historia.write(str(aa)+"\n")
+            self.historia.write(str(bb)+"\n")
+            self.historia.write(str(cc)+"\n")
+            self.historia.write(str(dd)+"\n")
+            self.historia.write(str(ee)+"\n")
+            self.historia.write(str(ff)+"\n")
+            self.historia.write(str(gg)+"\n")
+            self.historia.write(str(hh)+"\n")
+            self.historia.write(str(ii)+"\n")
+            self.historia.write(str(jj)+"\n")
+            self.historia.write(str(kk)+"\n")
+            self.historia.write(str(ll)+"\n")
+            self.historia.write(str(mm)+"\n")
+            self.historia.write(str(nn)+"\n")
+            self.historia.write(str(oo)+"\n")
+            self.historia.write(str(pp)+"\n")
+            
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(1,3) is " + str(Determinate3)+"\n")
+            self.historia.write("(1,4) is " + str(Determinate4)+"\n")
+            self.historia.write("(2,1) is " + str(Determinate5)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate6)+"\n")
+            self.historia.write("(2,3) is " + str(Determinate7)+"\n")
+            self.historia.write("(2,4) is " + str(Determinate8)+"\n")
+            self.historia.write("(3,1) is " + str(Determinate9)+"\n")
+            self.historia.write("(3,2) is " + str(Determinate10)+"\n")
+            self.historia.write("(3,3) is " + str(Determinate11) + "\n")
+            self.historia.write("(3,4) is " + str(Determinate12)+"\n")
+            self.historia.write("(4,1) is " + str(Determinate13)+"\n")
+            self.historia.write("(4,2) is " + str(Determinate14)+"\n")
+            self.historia.write("(4,3) is " + str(Determinate15)+"\n")
+            self.historia.write("(4,4) is " + str(Determinate16)+"\n")
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == ""and i == ""and j == ""and k ==""and l == ""and m == ""and n == ""and o == ""and p == "" and aa == "" and bb == "" and cc == "" and dd == "" and ee == "" and ff == "" and gg == "" and hh == ""and ii == ""and jj == ""and kk ==""and ll == ""and mm == ""and nn == ""and oo == ""and pp == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == ""or i == ""or j == ""or k =="" or l == ""or m == ""or n == "" or o == ""or p == "" or aa == "" or bb == "" or cc == ""or dd == "" or ee == "" or ff == ""or gg == "" or hh == ""or ii == ""or jj == ""or kk ==""or ll == ""or mm == ""or nn == ""or oo == ""or pp == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+
+class HisS4(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "4x4 Subtraction History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistorySub4.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistorySub4.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class WindowSUB(QMainWindow):
     def __init__(self):
@@ -2490,17 +3408,9 @@ class WindowSUB(QMainWindow):
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt;font-weight : bold }")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
         self.button.setToolTip("Go Back")
-        self.button.move(100,450)
+        self.button.move(300,450)
         self.button.clicked.connect(self.back)
         
-
-        self.pushButton = QPushButton("History", self)
-        self.pushButton.move(500, 450)
-        self.pushButton.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold }")
-        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt }")
-        self.pushButton.setToolTip("View")
-        self.pushButton.clicked.connect(self.history)
-
         self.main_window()
 
     def main_window(self):
@@ -2561,6 +3471,9 @@ class WindowMultiply2x2(QMainWindow):                           # <===
         self.label.resize(500,50)
         self.label.move(430, 10)
        
+        self.history = open("HistoryMultiply2.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1000, 500)
@@ -2642,12 +3555,6 @@ class WindowMultiply2x2(QMainWindow):                           # <===
         self.text.move(480, 60)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -2669,7 +3576,15 @@ class WindowMultiply2x2(QMainWindow):                           # <===
         self.button.move(850,350)
         self.button.clicked.connect(self.back) 
 
-        
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(450,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(800,500))                   # resize Image to widgets size
@@ -2700,19 +3615,22 @@ class WindowMultiply2x2(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox1a.text())
-        f = int(self.textbox2a.text())
-        g = int(self.textbox3a.text())
-        h = int(self.textbox4a.text())
-   
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox1a.text() != "" and self.textbox2a.text() != "" and self.textbox3a.text() != "" and self.textbox4a.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox1a.text())
+            f = int(self.textbox2a.text())
+            g = int(self.textbox3a.text())
+            h = int(self.textbox4a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h)
+        elif self.textbox1.text() == "" and self.textbox2.text() == "" and self.textbox3.text() == "" and self.textbox4.text() == "" and self.textbox1a.text() == "" and self.textbox2a.text() == "" and self.textbox3a.text() == "" and self.textbox4a.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+        elif self.textbox1.text() == "" or self.textbox2.text() == "" or self.textbox3.text() == "" or self.textbox4.text() == "" or self.textbox1a.text() == "" or self.textbox2a.text() == "" or self.textbox3a.text() == "" or self.textbox4a.text() == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
 
-        self.matrix_computation(a, b, c, d, e, f, g, h)
-    
+
     def back(self):
         WindowMultiply2x2.close(self)
         self.MainWindow()
@@ -2720,6 +3638,10 @@ class WindowMultiply2x2(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = windowMULTIPLY()
         self.mnwndw.show()
+    
+    def historycc(self):
+        self.open = HisM2()
+        self.open.show()
 
     def matrix_computation(self,a, b, c, d, e, f, g, h):
         A = ((a*e)+(b*g))
@@ -2739,7 +3661,88 @@ class WindowMultiply2x2(QMainWindow):                           # <===
         self.det2.setText(f"{Determinate2}")
         self.det3.setText(f"{Determinate3}")
         self.det4.setText(f"{Determinate4}")
-        
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != "":
+            self.historia = open("HistoryMultiply2.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(2,1) is " + str(Determinate3)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate4)+"\n")
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+class HisM2(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "2x2 Multiplication History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistoryMultiply2.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistoryMultiply2.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()        
 
 
 class WindowMultiply3x3(QMainWindow):                           # <===
@@ -2751,6 +3754,9 @@ class WindowMultiply3x3(QMainWindow):                           # <===
         self.label.resize(430,50)
         self.label.move(430, 10)
        
+        self.history = open("HistoryMultiply3.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1050, 500)
@@ -2892,12 +3898,6 @@ class WindowMultiply3x3(QMainWindow):                           # <===
         self.text.move(480, 60)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -2919,6 +3919,15 @@ class WindowMultiply3x3(QMainWindow):                           # <===
         self.button.move(850,350)
         self.button.clicked.connect(self.back) 
 
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(450,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
         
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
@@ -2964,27 +3973,26 @@ class WindowMultiply3x3(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox1a.text())
-        k = int(self.textbox2a.text())
-        l = int(self.textbox3a.text())
-        m = int(self.textbox4a.text())
-        n = int(self.textbox5a.text())
-        o = int(self.textbox6a.text())
-        p = int(self.textbox7a.text())
-        q = int(self.textbox8a.text())
-        r = int(self.textbox9a.text())
-
-        self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,)
+        if self.textbox1.text() != "" and self.textbox2.text() != "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != "" and self.textbox7.text() != "" and self.textbox8.text() != ""and self.textbox9.text() != ""and self.textbox1a.text() != ""and self.textbox2a.text() != ""and self.textbox3a.text() != ""and self.textbox4a.text() != ""and self.textbox5a.text() != ""and self.textbox6a.text() != ""and self.textbox7a.text() != ""and self.textbox8a.text() != ""and self.textbox9a.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox1a.text())
+            k = int(self.textbox2a.text())
+            l = int(self.textbox3a.text())
+            m = int(self.textbox4a.text())
+            n = int(self.textbox5a.text())
+            o = int(self.textbox6a.text())
+            p = int(self.textbox7a.text())
+            q = int(self.textbox8a.text())
+            r = int(self.textbox9a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,)
     
     def back(self):
         WindowMultiply3x3.close(self)
@@ -2993,6 +4001,9 @@ class WindowMultiply3x3(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = windowMULTIPLY()
         self.mnwndw.show()
+    def historycc(self):
+        self.open = HisM3()
+        self.open.show()
 
     def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q,r,):
         A = ((a*j)+(b*m)+(c*p))
@@ -3025,7 +4036,106 @@ class WindowMultiply3x3(QMainWindow):                           # <===
         self.det7.setText(f"{Determinate7}")
         self.det8.setText(f"{Determinate8}")
         self.det9.setText(f"{Determinate9}")
+        submitting = QMessageBox.information(self, "Processing", "Response being submitted. Do you wish to continue?", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        if submitting == QMessageBox.Yes and a != "" and b != "" and c != "" and d != "" and e != "" and f != "" and g != "" and h != ""and i != ""and j != ""and k != ""and l != ""and m != ""and n != ""and o != ""and p != ""and q != ""and r != "":
 
+            self.historia = open("HistoryAdd3.txt", 'a')
+            self.historia.write("Inputs\n" + str(a)+"\n")
+            self.historia.write(str(b)+"\n")
+            self.historia.write(str(c)+"\n")
+            self.historia.write(str(d)+"\n")
+            self.historia.write(str(e)+"\n")
+            self.historia.write(str(f)+"\n")
+            self.historia.write(str(g)+"\n")
+            self.historia.write(str(h)+"\n")
+            self.historia.write(str(i)+"\n")
+            self.historia.write(str(j)+"\n")
+            self.historia.write(str(k)+"\n")
+            self.historia.write(str(l)+"\n")
+            self.historia.write(str(m)+"\n")
+            self.historia.write(str(n)+"\n")
+            self.historia.write(str(o)+"\n")
+            self.historia.write(str(p)+"\n")
+            self.historia.write(str(q)+"\n")
+            self.historia.write(str(r)+"\n")
+            self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+            self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+            self.historia.write("(1,3) is " + str(Determinate3)+"\n")
+            self.historia.write("(2,1) is " + str(Determinate4)+"\n")
+            self.historia.write("(2,2) is " + str(Determinate5)+"\n")
+            self.historia.write("(2,3) is " + str(Determinate6)+"\n")
+            self.historia.write("(3,1) is " + str(Determinate7)+"\n")
+            self.historia.write("(3,2) is " + str(Determinate8)+"\n")
+            self.historia.write("(3,3) is " + str(Determinate9)+"\n")
+            
+            self.historia.close()
+        elif submitting == QMessageBox.No:
+            pass
+        elif submitting == QMessageBox.No and a == "" and b == "" and c == "" and d == "" and e == "" and f == "" and g == "" and h == ""and i == ""and j == ""and k ==""and l == ""and m == ""and n == ""and o == ""and p == ""and q == ""and r == "":
+            pass
+        elif submitting == QMessageBox.No and a == "" or b == "" or c == "" or d == "" or e == "" or f == "" or g == "" or h == ""or i == ""or j == ""or k == ""or l == ""or m == ""or n == ""or o == ""or p == ""or q == ""or r == "":
+            QMessageBox.warning(self, "Invalid", "Don't leave any blank spaces", QMessageBox.Ok, QMessageBox.Ok)
+
+class HisM3(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "3x3 Multiplication History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistoryMultiply3.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistoryMultiply3.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class WindowMultiply4x4(QMainWindow):                           # <===
     def __init__(self):
@@ -3036,6 +4146,9 @@ class WindowMultiply4x4(QMainWindow):                           # <===
         self.label.resize(500,50)
         self.label.move(430, 10)
        
+        self.history = open("HistoryMultiply4.txt", 'w')
+        self.history.write("History\n")
+        self.history.close()
 
         self.setWindowTitle("Matrix Calculator")
         self.setGeometry(100, 50, 1000, 500)
@@ -3268,12 +4381,6 @@ class WindowMultiply4x4(QMainWindow):                           # <===
         self.text.move(580, 55)
         self.text.resize(150, 30)
 
-
-
-
-
-      
-        
         self.button = QPushButton('Submit', self)
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")
@@ -3295,7 +4402,16 @@ class WindowMultiply4x4(QMainWindow):                           # <===
         self.button.move(350,360)
         self.button.clicked.connect(self.back) 
 
-        
+        self.button = QPushButton('History', self)  
+        self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold}")
+        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
+        self.button.setToolTip("Show History")
+        self.button.move(200,390)
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.button.clicked.connect(self.historycc)
+        else:
+            QMessageBox.warning(self, "Does not exist", "No existing history", QMessageBox.Ok, QMessageBox.Ok)
+
 
         oImage = QImage("technological-circuit-background_115579-1077.jpg")
         sImage = oImage.scaled(QSize(800,500))                   # resize Image to widgets size
@@ -3363,43 +4479,42 @@ class WindowMultiply4x4(QMainWindow):                           # <===
         
 
     def data(self):
-        Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        a = int(self.textbox1.text())
-        b = int(self.textbox2.text())
-        c = int(self.textbox3.text())
-        d = int(self.textbox4.text())
-        e = int(self.textbox5.text())
-        f = int(self.textbox6.text())
-        g = int(self.textbox7.text())
-        h = int(self.textbox8.text())
-        i = int(self.textbox9.text())
-        j = int(self.textbox10.text())
-        k = int(self.textbox11.text())
-        l = int(self.textbox12.text())
-        m = int(self.textbox13.text())
-        n = int(self.textbox14.text())
-        o = int(self.textbox15.text())
-        p = int(self.textbox16.text())
-        
+       if self.textbox1.text() != "" and self.textbox2.text() !=  "" and self.textbox3.text() != "" and self.textbox4.text() != "" and self.textbox5.text() != "" and self.textbox6.text() != ""and self.textbox7.text() != "" and self.textbox8.text() != ""and  self.textbox9.text() != "" and self.textbox10.text() != "" and self.textbox11.text() != "" and self.textbox12.text() != "" and self.textbox13.text() != "" and self.textbox14.text() != "" and self.textbox15.text() != "" and self.textbox16.text() != "":
+            a = int(self.textbox1.text())
+            b = int(self.textbox2.text())
+            c = int(self.textbox3.text())
+            d = int(self.textbox4.text())
+            e = int(self.textbox5.text())
+            f = int(self.textbox6.text())
+            g = int(self.textbox7.text())
+            h = int(self.textbox8.text())
+            i = int(self.textbox9.text())
+            j = int(self.textbox10.text())
+            k = int(self.textbox11.text())
+            l = int(self.textbox12.text())
+            m = int(self.textbox13.text())
+            n = int(self.textbox14.text())
+            o = int(self.textbox15.text())
+            p = int(self.textbox16.text())
+            
 
-        aa = int(self.textbox1.text())
-        bb = int(self.textbox2.text())
-        cc = int(self.textbox3.text())
-        dd = int(self.textbox4.text())
-        ee = int(self.textbox5.text())
-        ff = int(self.textbox6.text())
-        gg = int(self.textbox7.text())
-        hh = int(self.textbox8.text())
-        ii = int(self.textbox9.text())
-        jj = int(self.textbox10.text())
-        kk = int(self.textbox11.text())
-        ll = int(self.textbox12.text())
-        mm = int(self.textbox13.text())
-        nn = int(self.textbox14.text())
-        oo = int(self.textbox15.text())
-        pp = int(self.textbox16.text())
-
-        self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp)
+            aa = int(self.textbox1a.text())
+            bb = int(self.textbox2a.text())
+            cc = int(self.textbox3a.text())
+            dd = int(self.textbox4a.text())
+            ee = int(self.textbox5a.text())
+            ff = int(self.textbox6a.text())
+            gg = int(self.textbox7a.text())
+            hh = int(self.textbox8a.text())
+            ii = int(self.textbox9a.text())
+            jj = int(self.textbox10a.text())
+            kk = int(self.textbox11a.text())
+            ll = int(self.textbox12a.text())
+            mm = int(self.textbox13a.text())
+            nn = int(self.textbox14a.text())
+            oo = int(self.textbox15a.text())
+            pp = int(self.textbox16a.text())
+            self.matrix_computation(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp)
     
     def back(self):
         WindowMultiply4x4.close(self)
@@ -3408,8 +4523,12 @@ class WindowMultiply4x4(QMainWindow):                           # <===
     def MainWindow(self):
         self.mnwndw = windowMULTIPLY()
         self.mnwndw.show()
+    
+    def historycc(self):
+        self.open = HisM4()
+        self.open.show()
 
-    def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp):
+    def matrix_computation(self,a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,kk,ll,mm,nn,oo,pp):
         A = ((a*aa)+(b*ee)+(c*ii)+(d*mm))
         B = ((a*bb)+(b*ff)+(c*jj)+(d*nn))
         C = ((a*cc)+(b*gg)+(c*kk)+(d*oo))
@@ -3461,6 +4580,118 @@ class WindowMultiply4x4(QMainWindow):                           # <===
         self.det14.setText(f"{Determinate14}")
         self.det15.setText(f"{Determinate15}")
         self.det16.setText(f"{Determinate16}")
+        self.historia = open("HistoryMultiply4.txt", 'a')
+        self.historia.write("Inputs\n" + str(a)+"\n")
+        self.historia.write(str(b)+"\n")
+        self.historia.write(str(c)+"\n")
+        self.historia.write(str(d)+"\n")
+        self.historia.write(str(e)+"\n")
+        self.historia.write(str(f)+"\n")
+        self.historia.write(str(g)+"\n")
+        self.historia.write(str(h)+"\n")
+        self.historia.write(str(i)+"\n")
+        self.historia.write(str(j)+"\n")
+        self.historia.write(str(k)+"\n")
+        self.historia.write(str(l)+"\n")
+        self.historia.write(str(m)+"\n")
+        self.historia.write(str(n)+"\n")
+        self.historia.write(str(o)+"\n")
+        self.historia.write(str(p)+"\n")
+            
+        self.historia.write(str(aa)+"\n")
+        self.historia.write(str(bb)+"\n")
+        self.historia.write(str(cc)+"\n")
+        self.historia.write(str(dd)+"\n")
+        self.historia.write(str(ee)+"\n")
+        self.historia.write(str(ff)+"\n")
+        self.historia.write(str(gg)+"\n")
+        self.historia.write(str(hh)+"\n")
+        self.historia.write(str(ii)+"\n")
+        self.historia.write(str(jj)+"\n")
+        self.historia.write(str(kk)+"\n")
+        self.historia.write(str(ll)+"\n")
+        self.historia.write(str(mm)+"\n")
+        self.historia.write(str(nn)+"\n")
+        self.historia.write(str(oo)+"\n")
+        self.historia.write(str(pp)+"\n")
+        self.historia.write("(1,1) is " + str(Determinate1)+"\n")
+        self.historia.write("(1,2) is " + str(Determinate2) + "\n")
+        self.historia.write("(1,3) is " + str(Determinate3)+"\n")
+        self.historia.write("(1,4) is " + str(Determinate4)+"\n")
+        self.historia.write("(2,1) is " + str(Determinate5)+"\n")
+        self.historia.write("(2,2) is " + str(Determinate6)+"\n")
+        self.historia.write("(2,3) is " + str(Determinate7)+"\n")
+        self.historia.write("(2,4) is " + str(Determinate8)+"\n")
+        self.historia.write("(3,1) is " + str(Determinate9)+"\n")
+        self.historia.write("(3,2) is " + str(Determinate10)+"\n")
+        self.historia.write("(3,3) is " + str(Determinate11) + "\n")
+        self.historia.write("(3,4) is " + str(Determinate12)+"\n")
+        self.historia.write("(4,1) is " + str(Determinate13)+"\n")
+        self.historia.write("(4,2) is " + str(Determinate14)+"\n")
+        self.historia.write("(4,3) is " + str(Determinate15)+"\n")
+        self.historia.write("(4,4) is " + str(Determinate16)+"\n")
+        self.historia.close()
+
+class HisM4(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.title = "4x4 Multiplication History"
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.history = open("HistoryMultiply4.txt", 'r')
+            self.history.read()
+            self.history.close()
+        else:
+            QMessageBox.warning(self, "Error", "History does not exists!", QMessageBox.Ok, QMessageBox.Ok)
+
+        self.setWindowTitle("Matrix Calculator")
+        self.setGeometry(100, 50, 1000, 500)
+        self.setWindowIcon(QIcon('custom.ico'))
+        self.textans = QTextEdit(self)
+        self.textans.setText("")
+        self.textans.resize(800, 450)
+
+        self.pushButton = QPushButton("Clear", self)
+        self.pushButton.move(150, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Clear History")
+
+        self.pushButton.clicked.connect(self.del_rec)
+
+        self.pushButton = QPushButton("Show", self)
+        self.pushButton.move(350, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Show History")
+
+        self.pushButton.clicked.connect(self.show_his)
+
+        self.pushButton = QPushButton("Exit", self)
+        self.pushButton.move(550, 470)
+        self.pushButton.setStyleSheet("background-color: #d67d00 ; color : white  ")
+        self.pushButton.setFont(QFont('Times', 13, QFont.Bold ))
+        self.pushButton.setToolTip("Close Window")
+
+        self.pushButton.clicked.connect(self.returning)
+
+    def del_rec(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            os.remove('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt')
+            self.textans.clear()
+        else:    
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+
+    def show_his(self):
+        if os.path.exists('C:/Users/RODAS/Desktop/finalproject/Determinant History.txt'):
+            self.hopn = open("HistoryMultiplyp4.txt",'r')
+            text = self.hopn.read()
+            self.textans.setText(text)
+            self.hopn.close()
+        else:
+            QMessageBox.warning(self, "No File", "History does not exist", QMessageBox.Ok, QMessageBox.Ok)
+    def returning(self):
+        self.close()
 
 class windowMULTIPLY(QMainWindow):
     def __init__(self):
@@ -3494,16 +4725,11 @@ class windowMULTIPLY(QMainWindow):
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt;font-weight : bold }")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
         self.button.setToolTip("Go Back")
-        self.button.move(100,450)
+        self.button.move(300,450)
         self.button.clicked.connect(self.back)
         
 
-        self.pushButton = QPushButton("History", self)
-        self.pushButton.move(500, 450)
-        self.pushButton.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold }")
-        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt }")
-        self.pushButton.setToolTip("View")
-        self.pushButton.clicked.connect(self.history)
+       
 
         self.main_window()
 
@@ -3553,8 +4779,6 @@ class windowMULTIPLY(QMainWindow):
     
     
    
-    def history(self):
-        pass
 
 
 class WindowInv2x2(QMainWindow):                           # <===
@@ -3677,7 +4901,7 @@ class WindowInv2x2(QMainWindow):                           # <===
     def data(self):
         Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
         x = np.array([[self.textbox1.text(),self.textbox2.text()],
-                        [self.textbox3.text(),self.textbox.text()]]),
+                        [self.textbox3.text(),self.textbox4.text()]]),
                        
         z = x.astype(int)
         Answer = np.linalg.inv(z)
@@ -4208,16 +5432,11 @@ class WindowINV(QMainWindow):
         self.button.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt;font-weight : bold }")
         self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt}")   
         self.button.setToolTip("Go Back")
-        self.button.move(100,450)
+        self.button.move(300,450)
         self.button.clicked.connect(self.back)
         
 
-        self.pushButton = QPushButton("History", self)
-        self.pushButton.move(500, 450)
-        self.pushButton.setStyleSheet("QPushButton{background-color : #d67d00 ; color :white ; font: 13pt; font-weight: bold }")
-        self.setStyleSheet(" QToolTip{ border: 1px solid black; background-color:white ; font: 8pt }")
-        self.pushButton.setToolTip("View")
-        self.pushButton.clicked.connect(self.history)
+       
 
         self.main_window()
 
@@ -4247,8 +5466,6 @@ class WindowINV(QMainWindow):
     def MainWindow(self):
         self.mnwndw = MainWindow()
         self.mnwndw.show()
-    
-
 
     def window2inv(self):
         self.w = WindowInv2x2()
@@ -4264,12 +5481,6 @@ class WindowINV(QMainWindow):
         self.w = WindowInv4x4()
         self.w.show()
         MainWindow.close(self)
-    
-    
-   
-    def history(self):
-        pass
-
 
 
 class MainWindow(QMainWindow):
@@ -4277,6 +5488,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.title = "Matrix Calculator"
+        self.setGeometry(420, 100, 500, 500)
 
         self.pushButton = QPushButton("Multiplication", self)
         self.pushButton.move(50, 200)
@@ -4345,9 +5557,6 @@ class MainWindow(QMainWindow):
         palette.setBrush(QPalette.Window, QBrush(sImage))                        
         self.setPalette(palette)
         self.show()
-
-    def history(self):
-        pass
     
 
     def window2(self):
