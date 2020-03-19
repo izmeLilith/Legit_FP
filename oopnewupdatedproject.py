@@ -14,7 +14,7 @@ class Window3(QMainWindow):                           # <===
         self.label.setFont(QFont('Times', 20, QFont.Bold ))
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
-        self.label.move(150, 20) #gumana na sana to isa pa
+        self.label.move(150, 20)
 
         self.history = open("Determinant History.txt", 'w')
         self.history.write("History\n")
@@ -3647,7 +3647,7 @@ class WindowMultiply2x2(QMainWindow):                           # <===
         A = ((a*e)+(b*g))
         B = ((a*f)+(b*h))
         C = ((c*e)+(d*g))
-        D = ((c*e)+(d*g))
+        D = ((c*f)+(d*h))
         
 
         Determinate1 = A
@@ -4900,9 +4900,7 @@ class WindowInv2x2(QMainWindow):                           # <===
 
     def data(self):
         Submitted = QMessageBox.information(self, "Input Submitted", "Your Input Has Been Verified", QMessageBox.Ok, QMessageBox.Ok)
-        x = np.array([[self.textbox1.text(),self.textbox2.text()],
-                        [self.textbox3.text(),self.textbox4.text()]]),
-                       
+        x = np.array([[self.textbox1.text(),self.textbox2.text()],[self.textbox3.text(),self.textbox4.text()]])             
         z = x.astype(int)
         Answer = np.linalg.inv(z)
         Answer = np.around(Answer,decimals=2)
@@ -5605,7 +5603,7 @@ class MainWindow(QMainWindow):
         self.w.show()
         MainWindow.close(self)
 
-
+# eto legit na talaga to
    
 
 if __name__ == "__main__":
