@@ -14,7 +14,7 @@ class Window3(QMainWindow):                           # <===
         self.label.setFont(QFont('Times', 20, QFont.Bold ))
         self.label.setStyleSheet('QLabel {color: #dedede;}')
         self.label.resize(500,50)
-        self.label.move(150, 20) #gumana na sana to
+        self.label.move(150, 20) #gumana na sana to isa pa
 
         self.history = open("Determinant History.txt", 'w')
         self.history.write("History\n")
